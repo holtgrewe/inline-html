@@ -23,5 +23,13 @@ for img in root.xpath('//img'):
     data = img_to_data(src)
     img.attrib['src'] = data
 
+for link in root.xpath('//link'):
+    href = link.attrib['href']
+    css = open(href, 'rb').read()
+    node = lxml.etree.Element('style')
+    node.attrib['type'] = 'text/css'
+    node.text = css
+    link.getparent().replace(link, node)
+
 open('out.html', 'wb').write(lxml.html.tostring(root))
 
