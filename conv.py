@@ -1,5 +1,6 @@
 import os
 import base64
+import cssutils
 import mimetypes
 import lxml.html
 
@@ -26,6 +27,14 @@ for img in root.xpath('//img'):
 for link in root.xpath('//link'):
     href = link.attrib['href']
     css = open(href, 'rb').read()
+    sheet = cssutils.parseString(css)
+    for rule in sheet:
+        for k in rule.style.keys():
+            v = rule.style[k]
+            if v.startswith('url('):
+                print v
+                rule.style[k] = 'hello world'
+    css = sheet.cssText
     node = lxml.etree.Element('style')
     node.attrib['type'] = 'text/css'
     node.text = css
