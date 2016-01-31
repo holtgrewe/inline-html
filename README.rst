@@ -19,6 +19,10 @@ Usage
 
   bin/inline-html --in-file in.html --out-file out.html
 
+License
+=======
+
+- GPL 2
 
 Repository
 ==========
