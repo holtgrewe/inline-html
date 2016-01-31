@@ -1,3 +1,5 @@
+
+from __future__ import print_function
 import os
 import uuid
 import base64
@@ -29,7 +31,9 @@ def inline_resources(in_file, out_file):
     if not os.path.exists(in_file):
         raise IOError('--in-file "{}" does not exist'.format(in_file))
 
-    html = open(in_file, 'rb').read()
+    with open(in_file, 'rb') as fp:
+        html = fp.read()
+
     root = lxml.html.fromstring(html)
 
     # convert all images to data-uri
@@ -67,8 +71,10 @@ def inline_resources(in_file, out_file):
         node.text = css
         link.getparent().replace(link, node)
 
-    open(out_file, 'wb').write(lxml.html.tostring(root))
-    print 'Output written to {}'.format(out_file)
+    with open(out_file, 'wb') as fp:
+        fp.write(lxml.html.tostring(root))
+
+    print('Output written to {}'.format(out_file))
 
 if __name__ == '__main__':
     inline_resources()
