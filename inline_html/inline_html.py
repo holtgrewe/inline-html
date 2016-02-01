@@ -28,8 +28,8 @@ def resource_to_data(path):
 @click.option('--out-file', default='out.html', help='output HTML file')
 def inline_resources(in_file, out_file):
 
-    if not os.path.exists(in_file):
-        raise IOError('--in-file "{}" does not exist'.format(in_file))
+    if not in_file or not os.path.exists(in_file):
+        raise IOError('No input file given or input file does not exist')
 
     with open(in_file, 'rb') as fp:
         html = fp.read()
@@ -55,10 +55,13 @@ def inline_resources(in_file, out_file):
                 # replace url(...) with a hash (since cssutils) does
                 # not play well with data-uri
                 if v.startswith('url('):
-                    data = resource_to_data(v[4:-1])
+                    lpos = v.find('(')
+                    rpos = v.find(')')
+                    data = resource_to_data(v[lpos + 1 : rpos])
+                    suffix = v [rpos + 1 : ]
                     css_hash = str(uuid.uuid4())
                     rule.style[k] = css_hash
-                    css_hashes[css_hash] = 'url({})'.format(data)
+                    css_hashes[css_hash] = 'url({}) {}'.format(data, suffix)
     
         # replace hashes with data-uri
         css = sheet.cssText

@@ -4,7 +4,7 @@ import sys
 from setuptools import setup, find_packages
 
 NAME = "inline-html"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 REQUIRES = ['cssutils', 'click', 'lxml']
 
