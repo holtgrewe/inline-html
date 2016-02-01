@@ -1,6 +1,6 @@
 @font-face {
     font-family: MyTest;
-    src: url('Verdana.ttf') format(truetype);
+    src: url('Verdana.ttf') format("truetype");
 }
 
 h1 {
