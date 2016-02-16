@@ -20,8 +20,8 @@ def resource_to_data(path, in_file):
     mime, _ = mimetypes.guess_type(path)
     with open(path, 'rb') as fp:
         data = fp.read()
-        data64 = ''.join(base64.encodestring(data).splitlines())
-        return 'data:%s;base64,%s' % (mime, data64)
+        data64 = b''.join(base64.encodestring(data).splitlines())
+        return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 
 @click.command()
@@ -70,7 +70,8 @@ def inline_resources(in_file, out_file):
         # replace hashes with data-uri
         css = sheet.cssText
         for css_hash in css_hashes:
-            css = css.replace(css_hash, css_hashes[css_hash])
+            css = css.replace(
+                css_hash.encode('ascii'), css_hashes[css_hash].encode('ascii'))
 
         # replace <link> with inlined <style>
         node = lxml.etree.Element('style')
