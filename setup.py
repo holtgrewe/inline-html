@@ -4,9 +4,11 @@ import sys
 from setuptools import setup, find_packages
 
 NAME = "inline-html"
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 
 REQUIRES = ['cssutils', 'click', 'lxml']
+
+long_desc = open('README.rst', 'rb').read()
 
 setup(
     name=NAME,
@@ -29,10 +31,7 @@ setup(
     install_requires=REQUIRES,
     packages=find_packages(),
     include_package_data=True,
-    long_description="""\
-    Replace stylesheet references in HTML with inline styles, replaces all
-    resources with data-uri.
-    """,
+    long_description=long_desc,
     entry_points={
         'console_scripts': ['inline-html=inline_html.inline_html:inline_resources'],
     }
