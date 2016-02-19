@@ -9,18 +9,19 @@ import mimetypes
 import lxml.html
 
 
-def resource_to_data(path):
+def resource_to_data(path, in_file):
     """Convert a file (specified by a path) into a data URI."""
 
-    if path.startswith('data:') or path.startswith('http'):
+    if path.startswith(('data:', 'http')):
         return path
+    path = os.path.join(os.path.dirname(in_file), path)
     if not os.path.exists(path):
         raise IOError(path)
     mime, _ = mimetypes.guess_type(path)
     with open(path, 'rb') as fp:
         data = fp.read()
-        data64 = ''.join(base64.encodestring(data).splitlines())
-        return 'data:%s;base64,%s' % (mime, data64)
+        data64 = b''.join(base64.encodestring(data).splitlines())
+        return 'data:%s;base64,%s' % (mime, data64.decode('ascii'))
 
 
 @click.command()
@@ -39,14 +40,17 @@ def inline_resources(in_file, out_file):
     # convert all images to data-uri
     for img in root.xpath('//img'):
         src = img.attrib['src']
-        data = resource_to_data(src)
+        data = resource_to_data(src, in_file)
         img.attrib['src'] = data
 
     # inline all external stylesheets and replace url()
     # references with data-uri
     for link in root.xpath('//link'):
         href = link.attrib['href']
-        css = open(href, 'rb').read()
+        if not href.startswith(('data:', 'http')):
+            href = os.path.join(os.path.dirname(in_file), href)
+        with open(href, 'rb') as fp:
+            css = fp.read()
         css_hashes = dict()  # hash to data-uri
         sheet = cssutils.parseString(css)
         for rule in sheet:
@@ -57,7 +61,7 @@ def inline_resources(in_file, out_file):
                 if v.startswith('url('):
                     lpos = v.find('(')
                     rpos = v.find(')')
-                    data = resource_to_data(v[lpos + 1 : rpos])
+                    data = resource_to_data(v[lpos + 1 : rpos], in_file)
                     suffix = v [rpos + 1 : ]
                     css_hash = str(uuid.uuid4())
                     rule.style[k] = css_hash
@@ -66,7 +70,8 @@ def inline_resources(in_file, out_file):
         # replace hashes with data-uri
         css = sheet.cssText
         for css_hash in css_hashes:
-            css = css.replace(css_hash, css_hashes[css_hash])
+            css = css.replace(
+                css_hash.encode('ascii'), css_hashes[css_hash].encode('ascii'))
 
         # replace <link> with inlined <style>
         node = lxml.etree.Element('style')
