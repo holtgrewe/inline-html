@@ -8,7 +8,7 @@ VERSION = "0.1.2"
 
 REQUIRES = ['cssutils', 'click', 'lxml']
 
-long_desc = open('README.rst', 'rb').read()
+long_desc = open('README.rst', 'rt').read()
 
 setup(
     name=NAME,
